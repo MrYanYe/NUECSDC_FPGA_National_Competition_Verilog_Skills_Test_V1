@@ -1,0 +1,45 @@
+//题目1
+module adder_bcd(
+input [3:0] a,//输入加数a
+input [3:0] b, //输入加数b
+input rst_n, //系统复位，低电平有效
+output [3:0] bcd1, //输入个位
+output [3:0] bcd2//输入十位
+);
+///////////coding
+endmodule
+
+//题目2
+module funct (
+input clk,
+input [2:0] n,//阶层n
+input rst_n, //系统复位，低电平有效
+output [15:0] result//阶层结果
+);
+///////////coding
+endmodule
+
+
+//题目3
+module seq(
+input clk, 
+input i_data,//输入信号
+input valid,//输入信号有效
+input rst_n, //系统复位，低电平有效
+output result//有效序列输出
+);
+///////////coding
+endmodule
+
+//题目4
+module add(
+input clk,//系统时钟
+input rst_n,//系统复位，低电平有效
+input [3:0] i_data,//数据输入口（最高位是符号位）大小：-8~+7范围有符号数
+input valid,//数据有效（高有效）
+output [5:0] o_data,//输出数据口（最高位是符号位）
+output o_ready//输出数据有效
+);
+//coding
+endmodule
+

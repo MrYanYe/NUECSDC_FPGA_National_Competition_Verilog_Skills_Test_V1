@@ -1,0 +1,227 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 2025/11/18 14:54:33
+// Design Name: 
+// Module Name: game_count
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+module game_count(
+    input rst_n, 
+    input clk, 
+    input [9:0]money,
+    input set,
+    input [1:0]boost,
+    output [9:0]remain,
+    output yellow,
+    output red
+);
+
+reg [9:0] reamin_reg = 0;
+assign remain = reamin_reg;
+reg yellow_reg;
+assign yellow = yellow_reg;
+reg red_reg;
+assign red = red_reg;
+
+parameter       IDLE        = 2'b00;
+parameter       NORMAL      = 2'b01;
+parameter       PLAY        = 2'b10;
+parameter       TRIAL       = 2'b11;
+reg [1:0] state = IDLE;
+
+reg trial_count = 1;
+reg [4:0] trial_time_spent = 0;
+
+// reg first_minute; 
+// To avoid deducting money in the first clock period after 
+// entering the NORMAL/PLAY mode
+
+
+
+always @( * )
+begin
+            // Light Warning
+        if ( state != IDLE )
+        begin
+            if ( reamin_reg < 10 && reamin_reg > 0  )
+            begin
+                yellow_reg = 1;
+                red_reg = 0;
+            end
+
+            else if ( reamin_reg == 0  )
+            begin
+                red_reg = 1;
+                yellow_reg = 0;
+            end
+
+            else
+            begin
+                red_reg = 0;
+                yellow_reg = 0;
+            end
+        end
+end
+
+
+
+
+always @( posedge clk )
+begin
+            // top up
+        if ( set )
+        begin
+            reamin_reg = reamin_reg + money + 1 ;
+        end
+end
+
+
+
+
+
+
+
+// Play
+always @( posedge clk or negedge rst_n )
+begin
+    if (!rst_n)
+    begin
+        reamin_reg = 0;
+        trial_count = 1;
+        trial_time_spent = 0;
+        // first_minute = 0;
+
+    end
+
+    else
+    begin
+        
+
+
+
+
+        // Judge State
+
+        if ( boost == TRIAL )
+        begin
+            if ( trial_count > 0 )
+            begin
+                state = TRIAL;
+            end
+            else
+                state = state;
+
+        end
+        else
+        begin        
+        // If just changed the state, then skip one deduction in the first clock peroid.
+
+                state = boost;
+       
+        end
+
+
+
+
+
+
+
+
+        // Play
+
+            case (state)
+                IDLE:
+                begin
+                    ;
+
+
+
+                end
+
+                NORMAL:
+                begin
+                if ( reamin_reg >= 1 )
+                        reamin_reg = reamin_reg - 1;
+
+
+
+
+                end
+
+                PLAY:
+                begin
+
+                        if ( reamin_reg >= 2 ) begin
+
+                                reamin_reg = reamin_reg - 2;
+
+                        end
+
+                end
+
+                TRIAL:
+                begin
+
+                    reamin_reg = reamin_reg;
+
+                    if (trial_time_spent == 4)
+                    begin
+                        ;
+                        state = NORMAL;
+                        trial_count = trial_count - 1;
+                        trial_time_spent = 0;
+                    end
+                    else
+                    begin
+                        trial_time_spent = trial_time_spent + 1;
+                    end
+
+
+                end
+
+                default: 
+                begin
+                    state = IDLE;
+                end
+
+            endcase
+            
+
+
+
+
+
+
+
+
+
+
+
+
+    end // rst_n else
+
+end
+
+
+
+
+
+
+
+
+
+endmodule

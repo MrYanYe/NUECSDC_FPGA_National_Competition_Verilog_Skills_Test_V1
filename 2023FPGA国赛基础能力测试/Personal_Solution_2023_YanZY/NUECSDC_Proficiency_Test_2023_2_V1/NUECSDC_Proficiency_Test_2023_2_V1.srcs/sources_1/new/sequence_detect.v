@@ -1,0 +1,192 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 2025/11/20 16:28:14
+// Design Name: 
+// Module Name: sequence_detect
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module sequence_detect( 
+     input clk, 
+     input rst_n, 
+     input data1, 
+     output reg match, 
+     output reg not_match 
+ ); 
+
+
+// The first input digit is the data in the cycle when rst_n IS TRANSITIONING to the valid state.
+reg data = 0;
+reg data_temp = 0;
+always @(*) begin
+    
+    ;
+    data = data1;
+
+end
+
+parameter target_sequence = 6'b011_010 ;
+
+reg K2,K1;
+always @(*) begin
+    ;
+    match = K2;
+    not_match = K1;
+end
+
+
+	 reg [3:0] state = 0;//////
+     reg [3:0] next_state = 0;
+     
+	
+    //这里定义状�?�，采用独热�?
+	// parameter IDLE = 4'b1000,
+	// 	  START = 4'b0100,
+	// 	  STOP = 4'b0010,
+	// 	  CLEAR = 4'b0001;
+
+    parameter IDLE = 4'd0,
+    s1 = 4'd1,
+    s2 = 4'd2,
+    s3 = 4'd3,
+    s4 = 4'd4,
+    s5 = 4'd5,
+    s6 = 4'd6,
+    
+    sf0 = 4'd7,
+    sf1 = 4'd8,
+    sf2 = 4'd9,
+    sf3 = 4'd10,
+    sf4 = 4'd11,
+    sf5 = 4'd12,
+    sf6 = 4'd13;
+
+    
+
+
+    //这里实现时序逻辑中的状�?�转�?
+    always@(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            state <= IDLE;
+            // next_state <= IDLE;
+        end
+        else state <= next_state;
+    end
+
+
+    //这里实现组合逻辑中的状�?�更�?
+    // always @(A) means this always block will only be triggered when signal A changes.
+	// always@(posedge clk)
+        reg need_to_change_in_THIS_cycle = 0;
+        reg change_ena = 0 ;
+    always @(posedge clk) begin
+        ;
+    end
+
+
+
+
+    // always @( data or state ) begin
+    always @( * ) begin
+
+        need_to_change_in_THIS_cycle <= (rst_n && clk)? 1 : 0;
+        change_ena = need_to_change_in_THIS_cycle;
+        // change_ena = 1;
+
+        if (change_ena) begin
+            case(state)
+                IDLE:
+                    if(data == 0) 
+                        next_state = s1;
+                    else next_state = sf1;
+                s1:
+                    if(data == 1) next_state = s2;
+                    else next_state = sf2;
+                s2:
+                    if(data == 1) next_state = s3;
+                    else next_state = sf3;
+                s3:
+                    if(data == 0) next_state = s4;
+                    else next_state = sf4;
+                s4:
+                    if(data == 1) next_state = s5;
+                    else next_state = sf5;
+                s5:
+                    if(data == 0) next_state = s6;
+                    else next_state = sf6;
+                s6:
+                    if(data == 0) next_state = s1;
+                    else next_state = sf1;
+                ////////////////////////////////////////////////////
+
+                // sf0:
+                //     next_state = sf1;
+                sf1:
+                    
+                    next_state = sf2;
+                sf2:
+
+                    next_state = sf3;
+                sf3:
+
+                    next_state = sf4;
+                sf4:
+
+                    next_state = sf5;
+                sf5:
+                    next_state = sf6;
+                sf6:
+                    if (data == 0)
+                        next_state = s1;
+                    else
+                        next_state = sf1;
+
+
+                default: next_state = IDLE;
+            endcase
+        end // if (change_ena)
+    end
+
+
+	// 这里实现同步组合输出		
+    // K2, K1 are the number on the line of Mealy Machine
+    always@(posedge clk or negedge rst_n) begin
+        if(!rst_n) {K2,K1} <= {1'b0,1'b0};  
+        else begin
+            case(next_state)
+            // different from "case(state)" in Mealy machine
+                IDLE,s1,s2,s3,s4,s5:  
+                    {K2,K1} <= {1'b0,1'b0}; 
+                sf0,sf1,sf2,sf3,sf4,sf5:
+                    {K2,K1} <= {1'b0,1'b0}; 
+                s6:
+                    {K2,K1} <= {1'b1,1'b0}; 
+                sf6:
+                    {K2,K1} <= {1'b0,1'b1}; 
+
+                default:
+                    {K2,K1} <= {1'b0,1'b0}; 
+
+                
+            endcase
+        end
+    end
+ 
+ 
+ 
+ 
+endmodule 

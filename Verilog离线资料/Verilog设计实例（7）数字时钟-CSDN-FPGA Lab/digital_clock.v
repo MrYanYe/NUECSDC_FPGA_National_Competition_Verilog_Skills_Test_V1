@@ -1,0 +1,26 @@
+//数字时钟计数器
+module digital_clock(
+	input clk,
+	input rst_n,
+	input en,
+	output [7:0] hour,
+	output [7:0] min,
+	output [7:0] sec,
+	output tweet
+
+	);
+ 
+ 
+wire co_sec1,co_sec,co_min,co_min1;
+ 
+counter60 inst_sec(.clk(clk), .rst_n(rst_n), .en(en), .dout(sec), .co(co_sec1));
+and inst_and_sec(co_sec,en,co_sec1);
+counter60 inst_min(.clk(clk), .rst_n(rst_n), .en(co_sec), .dout(min), .co(co_min1));
+and inst_and_min(co_min,co_sec,co_min1);
+
+assign tweet = (min == 0)&&(sec == 0) ? 1 : 0; // report time signal
+
+counter24 inst_hour(.clk(clk), .rst_n(rst_n), .en(co_min), .dout(hour));
+ 
+endmodule
+ 

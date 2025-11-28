@@ -6,3 +6,7 @@
 ---
 ### 📅 2025-11-22 / 11：41 更新
 在每个年份的题的文件夹里加了一个```Personal_Solution_20xx_YanZY```文件夹，里面存放了我自己写的代码和思路，已在vivado2017.4上仿真成功，**仅供参考**。
+
+### 📅 2025-11-28 / 13：18 更新
+在```Verilog离线资料```文件夹里加入了牛客网的Verilog题目及参考答案，有快速入门和企业真题。
+原始网站是 https://www.nowcoder.com/exam/oj?questionJobId=3&subTabName=online_coding_page

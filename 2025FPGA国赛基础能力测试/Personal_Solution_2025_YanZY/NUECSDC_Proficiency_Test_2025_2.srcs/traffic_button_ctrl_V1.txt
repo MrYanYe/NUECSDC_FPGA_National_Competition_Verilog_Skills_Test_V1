@@ -1,0 +1,161 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 2025/11/28 18:21:20
+// Design Name: 
+// Module Name: traffic_button_ctrl
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module traffic_button_ctrl(
+     input clk,
+     input rst_n,
+     input ped_btn,
+     output reg [1:0] main_light, // 0:Green, 1:Yellow, 2:Red
+     output reg [1:0] ped_light // 0:Red, 1:Green
+ );
+ 
+ 
+ parameter RST=3'd0,GREEN=3'd1,YELLOW=3'd2,RED=3'd3;
+
+
+reg red;
+reg yellow;
+reg green;
+
+reg [1:0]state,next_state;
+reg [7:0]clock_1;
+always @(*) begin
+    case(state)
+        RST: next_state = (clock_1==8'd8)?RED:RST;
+        GREEN: next_state = (clock_1==8'd1)?RED:GREEN;
+        YELLOW: next_state = (clock_1 == 8'd1) ? GREEN : YELLOW;
+        RED: next_state = (clock_1 == 8'd1) ? GREEN : YELLOW;
+        
+        default:next_state = RST;
+    endcase
+end
+ 
+ 
+ 
+
+
+
+ always @(posedge clk or negedge rst_n) begin
+    ;
+    if (!rst_n)
+        state <= RST;
+    else
+        state <= next_state;
+ end
+
+ always @( posedge clk or negedge rst_n ) begin
+    ;
+    if (!rst_n)
+        clock_1 <= 8'd10;
+    else begin
+        ;
+        if ( clock_1 == 8'd1 )
+            case (state)
+                GREEN,RST : clock_1 <= 8'd10;
+                YELLOW : clock_1 <= 8'd10;
+                RED : clock_1 <= 8'd3;
+                default : clock_1 <= 8'd10;
+
+            endcase
+        else if ( clock_1 == 8'd8 && state == RST )
+            clock_1 <= 8'd10;
+        else if ( ped_btn && clock_1 > 8'd10 && state == GREEN )
+            clock_1 <= 8'd10;
+        else
+            clock_1 <= clock_1 - 1'b1;
+
+    end // else
+ end
+
+
+ always @( posedge clk or negedge rst_n ) begin
+    ;
+    if (!rst_n) begin
+        red <= 1'd0;
+        yellow <= 1'd0;
+        green <= 1'd0;
+    end
+    else begin
+        ;
+        case(next_state)
+            
+            RST : begin
+                red <= 1'd0;
+                yellow <= 1'd0;
+                green <= 1'd0;
+            end
+            GREEN : begin
+                red <= 1'd0;
+                yellow <= 1'd0;
+                green <= 1'd1;
+            end
+            YELLOW : begin
+                red <= 1'd0;
+                yellow <= 1'd1;
+                green <= 1'd0;
+            end
+            RED : begin
+                red <= 1'd1;
+                yellow <= 1'd0;
+                green <= 1'd0;
+            end
+
+            default : begin
+                red <= 1'd0;
+                yellow <= 1'd0;
+                green <= 1'd0;
+            end
+
+
+
+        endcase
+
+
+    end 
+
+
+    // assign clock = clock_1;
+
+
+ end    
+
+
+ always @(*) begin
+    ;
+    if ( red == 1 )
+        main_light = 2;
+    else if ( yellow == 1 )
+        main_light = 1;
+    else if ( GREEN == 1 )
+        main_light = 0;
+ end
+ always @(*) begin
+    ;
+    // is red light?
+    ped_light = ( main_light == 2 ) ? 1 : 0;
+ end
+
+
+
+
+
+  endmodule
